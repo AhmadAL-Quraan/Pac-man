@@ -7,7 +7,7 @@
 
   # The number of pacgums in the maze.
   # If it more than the maze size, the max the maze could take will be chosen
-  "pacgum": "hello",
+  "pacgum": 42,
 
   "points_per_pacgum": 10,
   
