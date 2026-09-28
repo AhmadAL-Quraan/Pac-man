@@ -27,13 +27,6 @@ class Maze:
             True if it's 1 means wall.
             False otherwise.
         """
-        if (
-            position[0] < 0
-            or position[1] < 0
-            or position[0] >= self.width
-            or position[1] >= self.height
-        ):
-            return False
         num: int = self.raw_grid[position[0]][position[1]]
         if direction == "north":
             return True if num & (1 << 0) else False
@@ -46,6 +39,14 @@ class Maze:
         return False
 
     def can_move(self, position: tuple[int, int], direction: str) -> bool:
+        if (
+            position[0] < 0
+            or position[1] < 0
+            or position[0] >= self.height
+            or position[1] >= self.width
+        ):
+            return False
+
         if self._has_wall(position, direction) == True:
             return False
         return True
@@ -54,11 +55,15 @@ class Maze:
         self, position: tuple[int, int]
     ) -> list[tuple[int, int]]:
         neighbors: list[tuple[int, int]] = []
-        dx = [1, -1, 0, 0]
-        dy = [0, 0, 1, -1]
         directions: list[str] = ["north", "east", "south", "west"]
+        directions_value: list[tuple[int, int]] = [
+            (0, -1),
+            (1, 0),
+            (0, 1),
+            (-1, 0),
+        ]
         for i in range(4):
-            new_x = position[0] + dx[i]
-            new_y = position[1] + dy[i]
-            if self.can_move((new_x, new_y), directions[i]):
-                neighbors.append((new_x, new_y))
+            if self.can_move(position, directions[i]):
+                neighbors.append((directions_value[i]))
+
+        return neighbors
