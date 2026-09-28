@@ -1,0 +1,40 @@
+{
+  # File name to save the highscore values in for each player (json format)
+  "highscore_filename": "" ,
+
+  # Pacman number of lives 
+  "lives": 3,
+
+  # The number of pacgums in the maze.
+  # If it more than the maze size, the max the maze could take will be chosen
+  "pacgum": "hello",
+
+  "points_per_pacgum": 10,
+  
+  "points_per_super_pacgum":50,
+
+  "points_per_ghost":200,
+
+  # Fixed maze generation, must be > 0
+  "seed": 42,
+
+  # Time for each level
+  "level_max_time": 90,
+
+  "level":[
+        {"width": "hello", "height": 15},
+        {"width": 11, "height": 17},
+        {"width": 17, "height": 17},
+        {"width": 19, "height": 19},
+        {"width": 19, "height": 19},
+        {"width": 21, "height": 21},
+        {"width": 21, "height": 21},
+        {"width": 23, "height": 23},
+        {"width": 23, "height": 23},
+        {"width": 25, "height": 25},
+        {"width": 25, "height": 25},
+        {"width": 25, "height": 25},
+        {"width": 25, "height": 25},
+        {"width": 25, "height": 25}
+  ]
+}
