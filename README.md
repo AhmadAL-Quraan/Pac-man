@@ -7,6 +7,9 @@
 
 
 
+## System context diagram
+![](./pic/system_context_diagram.png)
+
 ## Class diagram 
 
 ![](./pic/class_diagram.png)
