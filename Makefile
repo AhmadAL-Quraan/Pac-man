@@ -1,0 +1,7 @@
+install:
+	pip install flake8 mypy mazegenerator-2.1.0-py3-none-any.whl
+
+
+
+
+.PHONY: install
