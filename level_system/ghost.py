@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from .ghost_state import GhostState
 from .maze import Maze
 from collections import deque
+from .pacgum import Pacgum
 
 
 @dataclass()
@@ -10,8 +11,11 @@ class Ghost:
     state: GhostState
     # How much time before the ghost stop being ediable
     state_timer: float
+    corner: tuple[int, int]
     move_timer: float = 0
     _move_interval: float = 0.2
+    EDIBLE_DURATION_SECONDS = 5
+    EATEN_DURATION_SECONDS = 5
 
     def _flee_step(
         self, maze: Maze, player_position: tuple[int, int]
@@ -62,7 +66,7 @@ class Ghost:
                     queue.append(neighbor)
 
         if goal not in came_from:
-            return start, 0  # No path exists
+            return start, 999999  # No path exists
 
         distance = 0
         step = goal
@@ -115,3 +119,17 @@ class Ghost:
 
         elif self.state == GhostState.EDIBLE:
             self.position = self._flee_step(maze, player_position)
+
+    def become_edible(self) -> None:
+        """Switch the state of the ghost to edible and start counting down"""
+        self.state = GhostState.EDIBLE
+        self.state_timer = self.EDIBLE_DURATION_SECONDS
+
+    def respawn(self) -> None:
+        """respawn the ghost"""
+        self.position = self.corner
+
+    def get_eaten(self) -> None:
+        """Switch to eaten state and start Countdown for respawn"""
+        self.state = GhostState.EATEN
+        self.state_timer = self.EATEN_DURATION_SECONDS

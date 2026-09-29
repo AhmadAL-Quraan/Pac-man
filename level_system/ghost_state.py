@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 class GhostState(Enum):
-    CHASING = 1
-    EDIBLE = 0
-    EATEN = 0
+    CHASING = auto()
+    EDIBLE = auto()
+    EATEN = auto()
