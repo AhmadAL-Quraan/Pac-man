@@ -15,7 +15,6 @@ class Maze:
             (self.width, self.height), False, (0, 0), (-1, -1), self.seed
         )
         self.raw_grid = maze._maze
-        print(self.raw_grid)
 
     def _has_wall(self, position: tuple[int, int], direction: str) -> bool:
         """Return True if the position has a close direction, False otherwise
@@ -45,6 +44,7 @@ class Maze:
             or position[0] >= self.height
             or position[1] >= self.width
         ):
+            print(f"Warning, the position is out of index {position}")
             return False
 
         if self._has_wall(position, direction) == True:
@@ -57,13 +57,18 @@ class Maze:
         neighbors: list[tuple[int, int]] = []
         directions: list[str] = ["north", "east", "south", "west"]
         directions_value: list[tuple[int, int]] = [
-            (0, -1),
-            (1, 0),
-            (0, 1),
             (-1, 0),
+            (0, 1),
+            (1, 0),
+            (0, -1),
         ]
         for i in range(4):
             if self.can_move(position, directions[i]):
-                neighbors.append((directions_value[i]))
+                neighbors.append(
+                    (
+                        position[0] + directions_value[i][0],
+                        position[1] + directions_value[i][1],
+                    )
+                )
 
         return neighbors

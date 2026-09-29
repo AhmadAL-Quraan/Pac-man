@@ -7,11 +7,10 @@ from collections import deque
 @dataclass()
 class Ghost:
     position: tuple[int, int]
-    corner: tuple[int, int]
     state: GhostState
     # How much time before the ghost stop being ediable
     state_timer: float
-    move_timer: float
+    move_timer: float = 0
     _move_interval: float = 0.2
 
     def _flee_step(
