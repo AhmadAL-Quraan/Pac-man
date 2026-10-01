@@ -1,14 +1,17 @@
 from enum import Enum, auto
 from typing import Tuple
 
+
 class Direction(Enum):
     """
     Enumeration representing the possible directions Pacman can move.
     """
+
     RIGHT = auto()
     LEFT = auto()
     UP = auto()
     DOWN = auto()
+
 
 class Pacman:
     """
@@ -22,7 +25,11 @@ class Pacman:
         _start_position (tuple[int, int]): The initial spawn point (x, y) of Pacman.
     """
 
-    def __init__(self, start_position: Tuple[int, int], initial_direction: Direction = Direction.RIGHT):
+    def __init__(
+        self,
+        start_position: Tuple[int, int],
+        initial_direction: Direction = Direction.RIGHT,
+    ):
         """
         Initializes the Pacman instance.
 
@@ -33,7 +40,7 @@ class Pacman:
         self._remaining_lives: int = 3
         self._score: int = 0
         self._start_position: Tuple[int, int] = start_position
-        
+
         self._position: Tuple[int, int] = start_position
         self._direction: Direction = initial_direction
 
@@ -83,7 +90,7 @@ class Pacman:
         return self._score
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         """Returns the current position."""
         return self._position
 
@@ -96,4 +103,3 @@ class Pacman:
     def direction(self) -> Direction:
         """Returns the current direction."""
         return self._direction
-
