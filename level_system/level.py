@@ -5,7 +5,7 @@ from .maze import Maze
 from .ghost import Ghost
 from .pacgum import Pacgum
 from .ghost_state import GhostState
-from Game_system.cheat_mode import CheatMode
+from game_system.cheat_mode import CheatMode
 
 from level_system import ghost
 
