@@ -76,7 +76,7 @@ class Level:
         """
         self.time_remaining -= dt
 
-        player.update(dt, cheat_mode.speed_multiplier)
+        player.update(dt, cheat_mode.speed_multiplier, self.maze)
 
         for i in self.ghosts:
             i.update(dt, player._position, self.maze, cheat_mode.ghosts_frozen)
