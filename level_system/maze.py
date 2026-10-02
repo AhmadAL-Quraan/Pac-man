@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from mazegenerator import MazeGenerator
+from ..pacman.direction import Direction
+from pacman import direction
 
 
 @dataclass
@@ -16,7 +18,9 @@ class Maze:
         )
         self.raw_grid = maze._maze
 
-    def _has_wall(self, position: tuple[int, int], direction: str) -> bool:
+    def _has_wall(
+        self, position: tuple[int, int], direction: Direction
+    ) -> bool:
         """Return True if the position has a close direction, False otherwise
 
         Args:
@@ -27,17 +31,19 @@ class Maze:
             False otherwise.
         """
         num: int = self.raw_grid[position[0]][position[1]]
-        if direction == "north":
+        if direction.name == "UP":
             return True if num & (1 << 0) else False
-        if direction == "south":
+        if direction.name == "DOWN":
             return True if num & (1 << 2) else False
-        if direction == "east":
+        if direction.name == "RIGHT":
             return True if num & (1 << 1) else False
-        if direction == "west":
+        if direction.name == "LEFT":
             return True if num & (1 << 3) else False
         return False
 
-    def can_move(self, position: tuple[int, int], direction: str) -> bool:
+    def can_move(
+        self, position: tuple[int, int], direction: Direction
+    ) -> bool:
         if (
             position[0] < 0
             or position[1] < 0
@@ -55,19 +61,18 @@ class Maze:
         self, position: tuple[int, int]
     ) -> list[tuple[int, int]]:
         neighbors: list[tuple[int, int]] = []
-        directions: list[str] = ["north", "east", "south", "west"]
-        directions_value: list[tuple[int, int]] = [
-            (-1, 0),
-            (0, 1),
-            (1, 0),
-            (0, -1),
+        directions: list[Direction] = [
+            Direction.UP,
+            Direction.RIGHT,
+            Direction.DOWN,
+            Direction.LEFT,
         ]
         for i in range(4):
             if self.can_move(position, directions[i]):
                 neighbors.append(
                     (
-                        position[0] + directions_value[i][0],
-                        position[1] + directions_value[i][1],
+                        position[0] + directions[i].value[0],
+                        position[1] + directions[i].value[1],
                     )
                 )
 
