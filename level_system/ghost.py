@@ -5,17 +5,24 @@ from collections import deque
 from .pacgum import Pacgum
 
 
-@dataclass()
+@dataclass
 class Ghost:
     position: tuple[int, int]
     state: GhostState
     # How much time before the ghost stop being ediable
+    # How much time after to respawn after gets eaten
     state_timer: float
     corner: tuple[int, int]
+    """
+      The running total of accumulated `dt's`, checked against `_move_interval`,
+      each frame to decide whether enough time has passed for
+      the ghost to take its next step. So basically move player a step every x seconds
+    """
+    # Every value here is in seconds
     move_timer: float = 0
     _move_interval: float = 0.2
-    EDIBLE_DURATION_SECONDS = 5
-    EATEN_DURATION_SECONDS = 5
+    EDIBLE_DURATION_SECONDS: float = 5.0
+    EATEN_DURATION_SECONDS: float = 2.0
 
     def _flee_step(
         self, maze: Maze, player_position: tuple[int, int]
@@ -94,15 +101,19 @@ class Ghost:
         Args:
             dt: How much real time (in seconds) passed since the last frame.
             player_position: Countdown to how much time a ghost stays in its current state (like "edible")
-            frozen: The cheatmode status
+            frozen: A cheat_mode option that freezes ghosts
         """
-
-        self.state_timer -= dt
-        if self.state_timer <= 0 and self.state == GhostState.EDIBLE:
-            self.state = GhostState.CHASING
 
         if frozen:
             return
+        if self.state in (GhostState.EATEN, GhostState.EDIBLE):
+            self.state_timer -= dt
+            if self.state_timer <= 0:
+                if self.state == GhostState.EATEN:
+                    self.respawn()  # Sets position = corner, state = CHASING
+                    return  # Freshly respawned ghost shouldn't move on the revive frame
+                elif self.state == GhostState.EDIBLE:
+                    self.state = GhostState.CHASING
 
         self.move_timer += dt
         if self.move_timer < self._move_interval:
@@ -128,6 +139,8 @@ class Ghost:
     def respawn(self) -> None:
         """respawn the ghost"""
         self.position = self.corner
+        self.state = GhostState.CHASING
+        self.state_timer = 0.0
 
     def get_eaten(self) -> None:
         """Switch to eaten state and start Countdown for respawn"""
