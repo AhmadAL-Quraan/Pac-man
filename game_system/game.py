@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
 from .game_state import GameState
-from Game_system.cheat_mode import CheatMode
+from game_system.cheat_mode import CheatMode
 from level_system.level import Level
 from pacman.pacman import Pacman
 from ..config import Config
-from ..Score_system.player_score import PlayerScore
+from ..score_system.player_score import PlayerScore
 import pygame
 
 
