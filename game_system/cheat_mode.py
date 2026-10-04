@@ -1,6 +1,13 @@
+from __future__ import annotations  # 1. Must be the first line
+
 from dataclasses import dataclass
-from .game import Game
+from typing import TYPE_CHECKING  # 2. Import TYPE_CHECKING
 from pacman.pacman import Pacman
+
+if TYPE_CHECKING:
+    from .game import (
+        Game,
+    )  # 3. Only imported by type-checkers (ignored at runtime)
 
 
 @dataclass
@@ -17,7 +24,7 @@ class CheatMode:
         """Flip ghost-freeze on/off (cheat mode)."""
         self.ghosts_frozen = not self.ghosts_frozen
 
-    def skip_level(self, game: "Game") -> None:
+    def skip_level(self, game: Game) -> None:
         """Immediately advance to the next level (cheat mode)."""
         game.load_next_level()
 

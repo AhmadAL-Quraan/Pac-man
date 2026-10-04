@@ -1,7 +1,14 @@
+from __future__ import annotations
+from typing import Tuple, TYPE_CHECKING
 from enum import Enum
 from typing import Tuple
-from ..level_system.maze import Maze
 from .direction import Direction
+import pygame
+from config import Config
+
+# Prevent the module from beging imported at runtime
+if TYPE_CHECKING:
+    from level_system.maze import Maze
 
 
 class Pacman:
@@ -34,7 +41,7 @@ class Pacman:
         """
         self._remaining_lives: int = 3
         self._score: int = 0
-        self._start_position: Tuple[int, int] = start_position
+        self._start_position: tuple[int, int] = start_position
 
         self._position: Tuple[int, int] = start_position
         self._direction: Direction = initial_direction
@@ -99,6 +106,20 @@ class Pacman:
         """
         self._score += amount
 
+    def draw(self, screen: pygame.Surface) -> None:
+        """Draws Pacman as a yellow circle on the screen."""
+        cell_size = Config.CELL_SIZE
+        row, col = self._position
+
+        # Calculate exact pixel center of the grid cell
+        center_x = col * cell_size + cell_size // 2
+        center_y = row * cell_size + cell_size // 2
+
+        # Make the radius slightly smaller than the cell bounds
+        radius = (cell_size // 2) - 2
+
+        pygame.draw.circle(screen, (255, 255, 0), (center_x, center_y), radius)
+
     @property
     def score(self) -> int:
         """Returns the current score."""
@@ -118,3 +139,11 @@ class Pacman:
     def direction(self) -> Direction:
         """Returns the current direction Pacman is facing."""
         return self._direction
+
+    @property
+    def start_position(self) -> tuple[int, int]:
+        return self._start_position
+
+    @start_position.setter
+    def start_position(self, position: tuple[int, int]):
+        self._start_position = position

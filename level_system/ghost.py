@@ -20,7 +20,7 @@ class Ghost:
     """
     # Every value here is in seconds
     move_timer: float = 0
-    _move_interval: float = 0.2
+    _move_interval: float = 0.7
     EDIBLE_DURATION_SECONDS: float = 5.0
     EATEN_DURATION_SECONDS: float = 2.0
 
