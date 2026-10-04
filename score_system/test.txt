@@ -1,6 +1,0 @@
-hello:3
-ahmad:34
-ahmad:2
-dfh:3
-ahmad:2
-dfh:3

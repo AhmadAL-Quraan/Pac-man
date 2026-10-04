@@ -1,17 +1,29 @@
-from json import load
 import sys
 from config import Config
+from game_system.game import Game
 
 
-def start():
+def main() -> None:
+    """Entry point: load config and start the game."""
     if len(sys.argv) != 2:
-        print("Error, 2 argument only allowed")
+        print("Usage: python3 pac-man.py <config.json>")
         sys.exit(1)
 
     try:
-        config = Config.load("config.json")
+        config = Config.load(sys.argv[1])
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    print(f"Loaded config from {sys.argv[1]}")
+
+    try:
+        game = Game(config)
+        game.run()
     except Exception as e:
-        print(f"(Error happened) {e}")
+        print(f"Error running game: {e}")
+        sys.exit(1)
 
 
-start()
+if __name__ == "__main__":
+    main()

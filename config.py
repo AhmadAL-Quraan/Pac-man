@@ -158,7 +158,13 @@ class Config:
                 f"Warning: '{key}' must be a non-empty string, "
                 f"using default {default!r}"
             )
-            return default
+            filename = default
+
+        try:
+            open(filename, "x")
+            print("Making score file")
+        except Exception as e:
+            print("Score file exist, Goood")
         return filename
 
     @classmethod
@@ -182,7 +188,7 @@ class Config:
 
         return cls(
             highscore_filename=Config._validate_str(
-                raw_dict, "highscore_filename", "highscores.json"
+                raw_dict, "highscore_filename", "highscores.txt"
             ),
             points_per_super_pacgum=Config._validate_positive_int(
                 raw_dict, "points_per_super_pacgum", 50

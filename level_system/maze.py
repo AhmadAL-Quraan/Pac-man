@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from mazegenerator import MazeGenerator
-from ..pacman.direction import Direction
+from pacman.direction import Direction
 from pacman import direction
 
 
 @dataclass
 class Maze:
-    raw_grid: list[list[int]]
     width: int
     height: int
     seed: int
@@ -18,7 +17,7 @@ class Maze:
         )
         self.raw_grid = maze._maze
 
-    def _has_wall(
+    def has_wall(
         self, position: tuple[int, int], direction: Direction
     ) -> bool:
         """Return True if the position has a close direction, False otherwise
@@ -30,7 +29,9 @@ class Maze:
             True if it's 1 means wall.
             False otherwise.
         """
-        num: int = self.raw_grid[position[0]][position[1]]
+
+        x, y = position
+        num: int = self.raw_grid[x][y]
         if direction.name == "UP":
             return True if num & (1 << 0) else False
         if direction.name == "DOWN":
@@ -53,7 +54,7 @@ class Maze:
             print(f"Warning, the position is out of index {position}")
             return False
 
-        if self._has_wall(position, direction) == True:
+        if self.has_wall(position, direction) == True:
             return False
         return True
 
@@ -77,3 +78,24 @@ class Maze:
                 )
 
         return neighbors
+
+    def all_positions(self) -> list[tuple[int, int]]:
+        """Return every (x, y) coordinate in the maze grid.
+
+        Returns:
+            A flat list of every (x, y) position, row by row.
+        """
+        return [(x, y) for x in range(self.height) for y in range(self.width)]
+
+    def is_wall(self, position: tuple[int, int]) -> bool:
+        """Return True if this cell is a solid wall (unplaceable), not a
+        corridor cell where a pacgum or entity can sit.
+
+        Args:
+            position: (x, y) coordinates to check.
+
+        Returns:
+            True if the cell is the outer border wall, False if it's open.
+        """
+        x, y = position
+        return x == 0 or y == 0 or x == self.height - 1 or y == self.width - 1
