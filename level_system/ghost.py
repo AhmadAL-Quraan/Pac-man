@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+
+from pacman.pacman import Pacman
 from .ghost_state import GhostState
 from .maze import Maze
 from collections import deque
@@ -20,9 +22,9 @@ class Ghost:
     """
     # Every value here is in seconds
     move_timer: float = 0
-    _move_interval: float = 0.7
+    _move_interval: float = 0.6
     EDIBLE_DURATION_SECONDS: float = 5.0
-    EATEN_DURATION_SECONDS: float = 2.0
+    EATEN_DURATION_SECONDS: float = 5.0
 
     def _flee_step(
         self, maze: Maze, player_position: tuple[int, int]
@@ -94,6 +96,7 @@ class Ghost:
         dt: float,
         player_position: tuple[int, int],
         maze: Maze,
+        player: Pacman,
         frozen: bool,
     ) -> None:
         """update the state of the ghost at each frame
@@ -114,6 +117,7 @@ class Ghost:
                     return  # Freshly respawned ghost shouldn't move on the revive frame
                 elif self.state == GhostState.EDIBLE:
                     self.state = GhostState.CHASING
+                    player.change_pacman_speed(0.2)
 
         self.move_timer += dt
         if self.move_timer < self._move_interval:

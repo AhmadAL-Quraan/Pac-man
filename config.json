@@ -23,7 +23,7 @@
   "level_max_time": 90,
 
   "level":[
-        {"width": 30, "height": 30},
+        {"width": 3, "height": 3},
         {"width": 11, "height": 17},
         {"width": 17, "height": 17},
         {"width": 19, "height": 19},
