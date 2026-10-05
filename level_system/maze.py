@@ -16,6 +16,11 @@ class Maze:
             (self.width, self.height), False, (0, 0), (-1, -1), self.seed
         )
         self.raw_grid = maze._maze
+        self.pattern42: dict[tuple[int, int], bool] = {}
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.raw_grid[i][j] == 15:
+                    self.pattern42[(i, j)] = True
 
     def has_wall(
         self, position: tuple[int, int], direction: Direction
@@ -99,3 +104,7 @@ class Maze:
         """
         x, y = position
         return x == 0 or y == 0 or x == self.height - 1 or y == self.width - 1
+
+    def pattern_42_wall(self, check: tuple[int, int]) -> bool:
+        """Reutrn a list of 42 pattern position"""
+        return self.pattern42.get(check, False)
