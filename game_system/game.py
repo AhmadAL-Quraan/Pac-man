@@ -343,7 +343,9 @@ class Game:
         corridors = [
             pos
             for pos in maze.all_positions()
-            if not maze.is_wall(pos) and pos not in pacgums
+            if not maze.is_wall(pos)
+            and pos not in pacgums
+            and not maze.pattern_42_wall(pos)
         ]
         actual_count = min(count, len(corridors))
         chosen = random.sample(corridors, actual_count)
