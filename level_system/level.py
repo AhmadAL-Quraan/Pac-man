@@ -145,7 +145,8 @@ class Level:
                 elif i.state == GhostState.EDIBLE:
                     i.get_eaten()
 
-    def check_eaten_pacgums(self, player: Pacman):
+    def check_eaten_pacgums(self, player: Pacman) -> None:
+        """Check if the eaten pacgums are normal ones or super, and make actions"""
 
         pacgum_position = self.pacgums.get(
             player.position, Pacgum((-1, -1), False, False)
