@@ -82,7 +82,7 @@ class Pacman:
             x, y = self._position
             self._position = (x + dx, y + dy)
 
-    def change_pacman_speed(self, speed: float):
+    def change_pacman_speed(self, speed: float) -> None:
         """Change pacman speed when ghosts became edible"""
         self._move_interval = speed
 
@@ -148,7 +148,9 @@ class Pacman:
         points = [to_screen(point) for point in silhouette]
 
         tail = [(-10, -4), (-16, -8), (-13, 0), (-16, 8), (-10, 4)]
-        pygame.draw.polygon(screen, (231, 111, 37), [to_screen(p) for p in tail])
+        pygame.draw.polygon(
+            screen, (231, 111, 37), [to_screen(p) for p in tail]
+        )
         pygame.draw.polygon(screen, (133, 75, 24), points)
         pygame.draw.polygon(
             screen,
