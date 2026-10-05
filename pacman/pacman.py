@@ -1,4 +1,5 @@
 from __future__ import annotations
+from math import atan2, cos, sin
 from typing import Tuple, TYPE_CHECKING
 from enum import Enum
 from typing import Tuple
@@ -81,6 +82,10 @@ class Pacman:
             x, y = self._position
             self._position = (x + dx, y + dy)
 
+    def change_pacman_speed(self, speed: float):
+        """Change pacman speed when ghosts became edible"""
+        self._move_interval = speed
+
     def set_direction(self, direction: Direction) -> None:
         """Queues the direction Pacman should turn toward next.
 
@@ -107,18 +112,58 @@ class Pacman:
         self._score += amount
 
     def draw(self, screen: pygame.Surface) -> None:
-        """Draws Pacman as a yellow circle on the screen."""
+        """Draw Pac-Man as a faceted, directional comet character."""
         cell_size = Config.CELL_SIZE
         row, col = self._position
 
-        # Calculate exact pixel center of the grid cell
         center_x = col * cell_size + cell_size // 2
         center_y = row * cell_size + cell_size // 2
+        row_delta, col_delta = self._direction.value
+        facing = atan2(row_delta, col_delta)
+        cos_facing = cos(facing)
+        sin_facing = sin(facing)
 
-        # Make the radius slightly smaller than the cell bounds
-        radius = (cell_size // 2) - 2
+        def to_screen(point: tuple[float, float]) -> tuple[int, int]:
+            local_x, local_y = point
+            return (
+                round(center_x + local_x * cos_facing - local_y * sin_facing),
+                round(center_y + local_x * sin_facing + local_y * cos_facing),
+            )
 
-        pygame.draw.circle(screen, (255, 255, 0), (center_x, center_y), radius)
+        silhouette = [
+            (1, 0),
+            (12, -8),
+            (10, -12),
+            (4, -14),
+            (-5, -13),
+            (-12, -8),
+            (-14, 0),
+            (-11, 9),
+            (-4, 14),
+            (5, 13),
+            (11, 9),
+            (12, 7),
+            (1, 0),
+        ]
+        points = [to_screen(point) for point in silhouette]
+
+        tail = [(-10, -4), (-16, -8), (-13, 0), (-16, 8), (-10, 4)]
+        pygame.draw.polygon(screen, (231, 111, 37), [to_screen(p) for p in tail])
+        pygame.draw.polygon(screen, (133, 75, 24), points)
+        pygame.draw.polygon(
+            screen,
+            (255, 187, 45),
+            [to_screen((x * 0.86, y * 0.86)) for x, y in silhouette],
+        )
+        pygame.draw.polygon(
+            screen,
+            (255, 221, 101),
+            [to_screen((x * 0.70, y * 0.70)) for x, y in silhouette],
+        )
+
+        eye_x, eye_y = to_screen((0, -5))
+        pygame.draw.circle(screen, (255, 248, 218), (eye_x, eye_y), 3)
+        pygame.draw.circle(screen, (43, 48, 56), (eye_x + 1, eye_y), 2)
 
     @property
     def score(self) -> int:

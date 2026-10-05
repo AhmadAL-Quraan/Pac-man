@@ -27,45 +27,31 @@ class Level:
         self._maze_surface = pygame.Surface(
             (self.maze.width * cell_size, self.maze.height * cell_size)
         )
-        self._maze_surface.fill((0, 0, 0))
+        self._maze_surface.fill((7, 18, 24))
 
-        wall_color = (33, 33, 255)
+        def draw_wall(start: tuple[int, int], end: tuple[int, int]) -> None:
+            pygame.draw.line(self._maze_surface, (10, 57, 67), start, end, 8)
+            pygame.draw.line(self._maze_surface, (36, 190, 174), start, end, 4)
+            pygame.draw.line(
+                self._maze_surface, (134, 245, 207), start, end, 1
+            )
+
         for row, col in self.maze.all_positions():
             position = (row, col)
             px = col * cell_size
             py = row * cell_size
 
             if self.maze.has_wall(position, Direction.UP):
-                pygame.draw.line(
-                    self._maze_surface,
-                    wall_color,
-                    (px, py),
-                    (px + cell_size, py),
-                    2,
-                )
+                draw_wall((px, py), (px + cell_size, py))
             if self.maze.has_wall(position, Direction.DOWN):
-                pygame.draw.line(
-                    self._maze_surface,
-                    wall_color,
-                    (px, py + cell_size),
-                    (px + cell_size, py + cell_size),
-                    2,
+                draw_wall(
+                    (px, py + cell_size), (px + cell_size, py + cell_size)
                 )
             if self.maze.has_wall(position, Direction.LEFT):
-                pygame.draw.line(
-                    self._maze_surface,
-                    wall_color,
-                    (px, py),
-                    (px, py + cell_size),
-                    2,
-                )
+                draw_wall((px, py), (px, py + cell_size))
             if self.maze.has_wall(position, Direction.RIGHT):
-                pygame.draw.line(
-                    self._maze_surface,
-                    wall_color,
-                    (px + cell_size, py),
-                    (px + cell_size, py + cell_size),
-                    2,
+                draw_wall(
+                    (px + cell_size, py), (px + cell_size, py + cell_size)
                 )
 
     def draw(self, screen: pygame.Surface) -> None:
@@ -81,35 +67,58 @@ class Level:
                 center_x = col * cell_size + cell_size // 2
                 center_y = row * cell_size + cell_size // 2
 
-                # Make super pacgums larger
-                radius = 8 if pacgum.is_super else 4
-                pygame.draw.circle(
-                    screen, (255, 255, 102), (center_x, center_y), radius
-                )
+                if pacgum.is_super:
+                    pygame.draw.circle(
+                        screen, (255, 126, 104), (center_x, center_y), 9, 2
+                    )
+                    pygame.draw.circle(
+                        screen, (255, 231, 166), (center_x, center_y), 4
+                    )
+                else:
+                    pygame.draw.circle(
+                        screen, (246, 238, 184), (center_x, center_y), 3
+                    )
 
         # Draw Ghosts
-        for ghost in self.ghosts:
+        ghost_colors = (
+            (246, 91, 119),
+            (66, 205, 207),
+            (255, 157, 84),
+            (181, 135, 245),
+        )
+        for ghost_index, ghost in enumerate(self.ghosts):
             row, col = ghost.position
+            center_x = col * cell_size + cell_size // 2
+            top = row * cell_size + 3
+            eye_y = top + 12
 
-            # Draw ghosts slightly smaller than the cell bounds so they fit nicely
-            rect = pygame.Rect(
-                col * cell_size + 4,
-                row * cell_size + 4,
-                cell_size - 8,
-                cell_size - 8,
-            )
+            if ghost.state == GhostState.EATEN:
+                for eye_x in (center_x - 4, center_x + 4):
+                    pygame.draw.ellipse(
+                        screen, (242, 249, 239), (eye_x - 3, eye_y - 4, 6, 9)
+                    )
+                    pygame.draw.circle(
+                        screen, (51, 159, 221), (eye_x, eye_y), 2
+                    )
+                continue
 
-            # Assign colors based on the current state of the ghost
-            if ghost.state == GhostState.CHASING:
-                color = (255, 0, 0)  # Red (Dangerous)
-            elif ghost.state == GhostState.EDIBLE:
-                color = (0, 0, 255)  # Blue (Can be eaten)
-            elif ghost.state == GhostState.EATEN:
-                color = (100, 100, 100)  # Gray (Returning to spawn)
+            if ghost.state == GhostState.EDIBLE:
+                color = (65, 142, 229)
+                pupil_color = (42, 97, 181)
             else:
-                color = (255, 255, 255)  # Fallback
+                color = ghost_colors[ghost_index % len(ghost_colors)]
+                pupil_color = (29, 39, 53)
 
-            pygame.draw.rect(screen, color, rect)
+            pygame.draw.circle(screen, color, (center_x, top + 10), 11)
+            pygame.draw.rect(screen, color, (center_x - 11, top + 10, 22, 12))
+            for foot_x in (center_x - 7, center_x, center_x + 7):
+                pygame.draw.circle(screen, (7, 18, 24), (foot_x, top + 22), 4)
+
+            for eye_x in (center_x - 4, center_x + 4):
+                pygame.draw.ellipse(
+                    screen, (248, 250, 235), (eye_x - 3, eye_y - 4, 6, 9)
+                )
+                pygame.draw.circle(screen, pupil_color, (eye_x + 1, eye_y), 2)
 
     def _reset_position(self, player: Pacman) -> None:
         """Reset the position of all entities when the game start or resets.
@@ -154,13 +163,11 @@ class Level:
                 player.add_points(self.config.points_per_super_pacgum)
                 for i in self.ghosts:
                     i.become_edible()
+                player.change_pacman_speed(0.140)
 
     def is_complete(self) -> bool:
-        """Check if the game is finished correctly by eaten all pacgums"""
-        if len(self.pacgums) == 0:
-            return True
-
-        return False
+        """Return whether every pacgum in the level has been eaten."""
+        return all(pacgum.eaten for pacgum in self.pacgums.values())
 
     def check_failed(self, player: Pacman) -> bool:
         """Check if the level has failed, either the pacman life ends or the time has end
@@ -191,7 +198,13 @@ class Level:
         player.update(dt, cheat_mode.speed_multiplier, self.maze)
 
         for i in self.ghosts:
-            i.update(dt, player._position, self.maze, cheat_mode.ghosts_frozen)
+            i.update(
+                dt,
+                player._position,
+                self.maze,
+                player,
+                cheat_mode.ghosts_frozen,
+            )
 
         self.check_collision(player, cheat_mode)
         self.check_eaten_pacgums(player)

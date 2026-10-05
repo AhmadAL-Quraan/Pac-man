@@ -12,9 +12,18 @@ if TYPE_CHECKING:
 
 @dataclass
 class CheatMode:
+    enabled: bool = False
     invincible: bool = False
     ghosts_frozen: bool = False
     speed_multiplier: float = 1.0
+
+    def toggle_enabled(self) -> None:
+        """Toggle cheat access and clear active effects when disabling."""
+        self.enabled = not self.enabled
+        if not self.enabled:
+            self.invincible = False
+            self.ghosts_frozen = False
+            self.speed_multiplier = 1.0
 
     def toggle_invincibility(self) -> None:
         """Flip invincibility on/off (cheat mode)."""
