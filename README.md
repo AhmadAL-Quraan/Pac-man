@@ -89,3 +89,11 @@ Main algorithms used for ghosts:
 
 
 
+
+# Work hasn't finish 
+
+- [ ] Screen size issue: It's a fixed 800x800 screen, and at most 21x21 maze can run by this game. Must fix it. 
+
+- [ ] The game isn't as smooth as it must be, it's 60FPS but still.
+
+
