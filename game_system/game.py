@@ -81,17 +81,17 @@ class Game:
             32, 32, self.screen.get_width() - 64, self.screen.get_height() - 64
         )
         pygame.draw.rect(self.screen, (10, 35, 42), panel)
-        pygame.draw.rect(self.screen, (36, 190, 174), panel, 2)
+        pygame.draw.rect(self.screen, (154, 118, 255), panel, 2)
 
         title = self.brand_font.render("PAC-MAN", True, (255, 211, 52))
         self.screen.blit(title, title.get_rect(center=(panel.centerx, 112)))
         subtitle = self.menu_font.render(
-            "A MAZE OF YOUR OWN MAKING", True, (134, 245, 207)
+            "A MAZE OF YOUR OWN MAKING", True, (203, 179, 255)
         )
         self.screen.blit(subtitle, subtitle.get_rect(center=(panel.centerx, 164)))
         pygame.draw.line(
             self.screen,
-            (36, 190, 174),
+            (154, 118, 255),
             (panel.left + 40, 200),
             (panel.right - 40, 200),
             2,
@@ -118,7 +118,7 @@ class Game:
                 )
                 pygame.draw.rect(
                     self.screen,
-                    (255, 211, 52) if selected else (36, 112, 112),
+                    (255, 211, 52) if selected else (143, 110, 255),
                     rect,
                     2,
                 )
@@ -131,7 +131,7 @@ class Game:
             hint = self.status_font.render(
                 "UP / DOWN SELECT     ENTER CHOOSE",
                 True,
-                (134, 174, 169),
+                (191, 169, 255),
             )
             self.screen.blit(
                 hint, hint.get_rect(center=(panel.centerx, panel.bottom - 44))
@@ -168,7 +168,7 @@ class Game:
                     text.get_rect(center=(panel.centerx, 302 + index * 38)),
                 )
 
-        back_hint = self.status_font.render("ESC TO RETURN", True, (134, 174, 169))
+        back_hint = self.status_font.render("ESC TO RETURN", True, (191, 169, 255))
         self.screen.blit(
             back_hint,
             back_hint.get_rect(center=(panel.centerx, panel.bottom - 44)),

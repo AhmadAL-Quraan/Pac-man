@@ -29,29 +29,45 @@ class Level:
         )
         self._maze_surface.fill((7, 18, 24))
 
-        def draw_wall(start: tuple[int, int], end: tuple[int, int]) -> None:
-            pygame.draw.line(self._maze_surface, (10, 57, 67), start, end, 8)
-            pygame.draw.line(self._maze_surface, (36, 190, 174), start, end, 4)
-            pygame.draw.line(
-                self._maze_surface, (134, 245, 207), start, end, 1
-            )
+        def draw_wall(
+            start: tuple[int, int],
+            end: tuple[int, int],
+            is_special: bool = False,
+        ) -> None:
+            if is_special:
+                outer = (79, 52, 121)
+                middle = (160, 110, 255)
+                highlight = (220, 207, 255)
+            else:
+                outer = (10, 57, 67)
+                middle = (36, 190, 174)
+                highlight = (134, 245, 207)
+
+            pygame.draw.line(self._maze_surface, outer, start, end, 8)
+            pygame.draw.line(self._maze_surface, middle, start, end, 4)
+            pygame.draw.line(self._maze_surface, highlight, start, end, 1)
 
         for row, col in self.maze.all_positions():
             position = (row, col)
             px = col * cell_size
             py = row * cell_size
+            is_special = self.maze.pattern_42_wall(position)
 
             if self.maze.has_wall(position, Direction.UP):
-                draw_wall((px, py), (px + cell_size, py))
+                draw_wall((px, py), (px + cell_size, py), is_special)
             if self.maze.has_wall(position, Direction.DOWN):
                 draw_wall(
-                    (px, py + cell_size), (px + cell_size, py + cell_size)
+                    (px, py + cell_size),
+                    (px + cell_size, py + cell_size),
+                    is_special,
                 )
             if self.maze.has_wall(position, Direction.LEFT):
-                draw_wall((px, py), (px, py + cell_size))
+                draw_wall((px, py), (px, py + cell_size), is_special)
             if self.maze.has_wall(position, Direction.RIGHT):
                 draw_wall(
-                    (px + cell_size, py), (px + cell_size, py + cell_size)
+                    (px + cell_size, py),
+                    (px + cell_size, py + cell_size),
+                    is_special,
                 )
 
     def draw(self, screen: pygame.Surface) -> None:
