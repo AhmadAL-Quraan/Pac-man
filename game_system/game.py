@@ -43,6 +43,9 @@ class Game:
         self.cheat_mode: CheatMode = CheatMode()
         self.screen: pygame.Surface = pygame.display.set_mode((800, 800))
         self.clock = pygame.time.Clock()
+        self.title_font = pygame.font.SysFont(None, 48)
+        self.menu_font = pygame.font.SysFont(None, 36)
+        self.hud_font = pygame.font.SysFont(None, 32)
         self._level_index = 0
 
         # Tracking variables for the Game Over / Name Entry screen
@@ -86,26 +89,23 @@ class Game:
         self.screen.fill((0, 0, 0))
 
         if self.state == GameState.MENU:
-            font = pygame.font.SysFont(None, 48)
-            title = font.render(
+            title = self.title_font.render(
                 "Pac-Man: Press SPACE to Start", True, (255, 255, 0)
             )
             self.screen.blit(title, (50, 50))
 
-            small_font = pygame.font.SysFont(None, 36)
-            hs_title = small_font.render(
+            hs_title = self.menu_font.render(
                 "Top 10 Highscores:", True, (255, 255, 255)
             )
             self.screen.blit(hs_title, (50, 120))
 
             for i, (name, score) in enumerate(self.score_storage.show_top()):
-                score_text = small_font.render(
+                score_text = self.menu_font.render(
                     f"{i+1}. {name} - {score} pts", True, (200, 200, 200)
                 )
                 self.screen.blit(score_text, (50, 160 + (i * 30)))
 
         elif self.state == GameState.ENTERING_NAME:
-            font = pygame.font.SysFont(None, 48)
             msg = (
                 "VICTORY!"
                 if getattr(self, "won_last_game", False)
@@ -120,11 +120,11 @@ class Game:
             # Safely get the score to satisfy Pyright
             final_score = self.player.score if self.player is not None else 0
 
-            title = font.render(msg, True, color)
-            score_text = font.render(
+            title = self.title_font.render(msg, True, color)
+            score_text = self.title_font.render(
                 f"Final Score: {final_score}", True, (255, 255, 255)
             )
-            prompt = font.render(
+            prompt = self.title_font.render(
                 f"Enter Name (Press Enter): {self.player_name_input}_",
                 True,
                 (255, 255, 0),
@@ -143,22 +143,21 @@ class Game:
 
             # Draw In-Game HUD at the bottom of the screen
             hud_y = self.current_level.maze.height * self.config.CELL_SIZE + 15
-            font = pygame.font.SysFont(None, 32)
 
             assert self.player is not None
             assert self.current_level is not None
-            score_txt = font.render(
+            score_txt = self.hud_font.render(
                 f"Score: {self.player.score}", True, (255, 255, 255)
             )
-            lives_txt = font.render(
+            lives_txt = self.hud_font.render(
                 f"Lives: {self.player.remaining_lives}", True, (255, 255, 255)
             )
-            time_txt = font.render(
+            time_txt = self.hud_font.render(
                 f"Time: {int(self.current_level.time_remaining)}",
                 True,
                 (255, 255, 255),
             )
-            lvl_txt = font.render(
+            lvl_txt = self.hud_font.render(
                 f"Level: {self.current_level.level_number}",
                 True,
                 (255, 255, 255),
@@ -170,8 +169,7 @@ class Game:
             self.screen.blit(lvl_txt, (500, hud_y))
 
         elif self.state == GameState.PAUSED:
-            font = pygame.font.SysFont(None, 48)
-            text = font.render(
+            text = self.title_font.render(
                 "PAUSED - Press P to Resume", True, (255, 255, 255)
             )
             text_rect = text.get_rect(

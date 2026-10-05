@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import pygame
 import config
 from pacman.pacman import Pacman
@@ -19,56 +19,61 @@ class Level:
     time_remaining: float
     level_number: int
     config: Config
+    _maze_surface: pygame.Surface = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """Pre-render maze walls, which remain unchanged during a level."""
+        cell_size = Config.CELL_SIZE
+        self._maze_surface = pygame.Surface(
+            (self.maze.width * cell_size, self.maze.height * cell_size)
+        )
+        self._maze_surface.fill((0, 0, 0))
+
+        wall_color = (33, 33, 255)
+        for row, col in self.maze.all_positions():
+            position = (row, col)
+            px = col * cell_size
+            py = row * cell_size
+
+            if self.maze.has_wall(position, Direction.UP):
+                pygame.draw.line(
+                    self._maze_surface,
+                    wall_color,
+                    (px, py),
+                    (px + cell_size, py),
+                    2,
+                )
+            if self.maze.has_wall(position, Direction.DOWN):
+                pygame.draw.line(
+                    self._maze_surface,
+                    wall_color,
+                    (px, py + cell_size),
+                    (px + cell_size, py + cell_size),
+                    2,
+                )
+            if self.maze.has_wall(position, Direction.LEFT):
+                pygame.draw.line(
+                    self._maze_surface,
+                    wall_color,
+                    (px, py),
+                    (px, py + cell_size),
+                    2,
+                )
+            if self.maze.has_wall(position, Direction.RIGHT):
+                pygame.draw.line(
+                    self._maze_surface,
+                    wall_color,
+                    (px + cell_size, py),
+                    (px + cell_size, py + cell_size),
+                    2,
+                )
 
     def draw(self, screen: pygame.Surface) -> None:
         """Draw the maze, pacgums, and ghosts."""
         cell_size = Config.CELL_SIZE
+        screen.blit(self._maze_surface, (0, 0))
 
-        # 1. Draw Maze Walls
-        # Maze positions are (row, col) -> (y, x) in screen space
-        wall_color = (33, 33, 255)  # Pac-Man Blue
-        wall_thickness = 2
-
-        for pos in self.maze.all_positions():
-            row, col = pos
-            px = col * cell_size
-            py = row * cell_size
-
-            # Check each direction and draw a boundary line if a wall exists
-            if self.maze.has_wall(pos, Direction.UP):
-                pygame.draw.line(
-                    screen,
-                    wall_color,
-                    (px, py),
-                    (px + cell_size, py),
-                    wall_thickness,
-                )
-            if self.maze.has_wall(pos, Direction.DOWN):
-                pygame.draw.line(
-                    screen,
-                    wall_color,
-                    (px, py + cell_size),
-                    (px + cell_size, py + cell_size),
-                    wall_thickness,
-                )
-            if self.maze.has_wall(pos, Direction.LEFT):
-                pygame.draw.line(
-                    screen,
-                    wall_color,
-                    (px, py),
-                    (px, py + cell_size),
-                    wall_thickness,
-                )
-            if self.maze.has_wall(pos, Direction.RIGHT):
-                pygame.draw.line(
-                    screen,
-                    wall_color,
-                    (px + cell_size, py),
-                    (px + cell_size, py + cell_size),
-                    wall_thickness,
-                )
-
-        # 2. Draw Pacgums
+        # Draw Pacgums
         for pos, pacgum in self.pacgums.items():
             if not pacgum.eaten:
                 row, col = pos
@@ -82,7 +87,7 @@ class Level:
                     screen, (255, 255, 102), (center_x, center_y), radius
                 )
 
-        # 3. Draw Ghosts
+        # Draw Ghosts
         for ghost in self.ghosts:
             row, col = ghost.position
 
