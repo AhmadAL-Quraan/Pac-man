@@ -96,4 +96,10 @@ Main algorithms used for ghosts:
 
 - [ ] The game isn't as smooth as it must be, it's 60FPS but still.
 
+- [ ] Makefile
+
+- [ ] Requirements.txt
+
+- [ ] Test every edge cases.  
+
 
