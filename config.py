@@ -5,6 +5,7 @@ from typing import ClassVar
 
 @dataclass
 class Config:
+    """Class representing Config."""
 
     lives: int
     seed: int
@@ -29,6 +30,7 @@ class Config:
 
     @staticmethod
     def _clean_data(raw_text: str) -> str:
+        """Function representing _clean_data."""
         lines = []
         for i in raw_text.splitlines():
             j = i.strip()
@@ -40,6 +42,7 @@ class Config:
 
     @staticmethod
     def _validate_int(raw_dict: dict, key: str, default: int) -> int:
+        """Function representing _validate_int."""
         value = raw_dict.get(key, default)
         if not isinstance(value, int) or isinstance(value, bool):
             print(
@@ -50,6 +53,7 @@ class Config:
 
     @staticmethod
     def _validate_positive_int(data: dict, key: str, default: int) -> int:
+        """Function representing _validate_positive_int."""
         num = Config._validate_int(data, key, default)
         if num <= 0:
             print(
@@ -144,7 +148,8 @@ class Config:
         while len(cleaned) < Config.MIN_LEVEL_COUNT:
             print(
                 f"Warning: only {len(cleaned)} levels provided, "
-                f"padding with default levels to reach {Config.MIN_LEVEL_COUNT}"
+                f"padding with default levels to reach "
+                f"{Config.MIN_LEVEL_COUNT}"
             )
             cleaned.append(dict(Config.DEFAULT_LEVEL))
 
@@ -152,6 +157,7 @@ class Config:
 
     @staticmethod
     def _validate_str(data: dict, key: str, default: str) -> str:
+        """Function representing _validate_str."""
         filename = data.get(key, default)
         if not isinstance(filename, str) or filename == "":
             print(
@@ -163,12 +169,13 @@ class Config:
         try:
             open(filename, "x")
             print("Making score file")
-        except Exception as e:
+        except Exception:
             print("Score file exist, Goood")
         return filename
 
     @classmethod
     def load(cls, filepath: str) -> "Config":
+        """Function representing load."""
         try:
             with open(filepath, "r") as file:
                 raw_text = file.read()

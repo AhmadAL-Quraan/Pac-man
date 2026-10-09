@@ -1,8 +1,6 @@
 from __future__ import annotations
 from math import atan2, cos, sin
 from typing import Tuple, TYPE_CHECKING
-from enum import Enum
-from typing import Tuple
 from .direction import Direction
 import pygame
 from config import Config
@@ -64,7 +62,7 @@ class Pacman:
 
         Args:
             dt: The time elapsed (delta time) since the last update.
-            speed_multiplier: The multiplier applied to Pacman's movement speed.
+            speed_multiplier: The multiplier applied to Pacman movement speed.
             maze: Used to check whether a move is legal (no wall in the way).
         """
         self._move_timer += dt * speed_multiplier
@@ -124,6 +122,7 @@ class Pacman:
         sin_facing = sin(facing)
 
         def to_screen(point: tuple[float, float]) -> tuple[int, int]:
+            """Function representing to_screen."""
             local_x, local_y = point
             return (
                 round(center_x + local_x * cos_facing - local_y * sin_facing),
@@ -189,8 +188,10 @@ class Pacman:
 
     @property
     def start_position(self) -> tuple[int, int]:
+        """Function representing start_position."""
         return self._start_position
 
     @start_position.setter
-    def start_position(self, position: tuple[int, int]):
+    def start_position(self, position: tuple[int, int]) -> None:
+        """Function representing start_position."""
         self._start_position = position

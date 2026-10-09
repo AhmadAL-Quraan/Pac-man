@@ -1,5 +1,4 @@
 import random
-import sys
 
 import pygame
 
@@ -21,7 +20,8 @@ class Game:
     Attributes:
         config: The loaded, validated game configuration.
         player: The current Pacman instance, or None before a game starts.
-        current_level: The current Level instance, or None before a game starts.
+        current_level: The current Level instance, or None before a game
+            starts.
         state: The current high-level game state (menu, playing, etc.).
         score_storage: Handles loading/saving the persistent highscore list.
         cheat_mode: Tracks cheat toggles (invincibility, speed, etc.).
@@ -61,21 +61,23 @@ class Game:
     def run(self) -> None:
         """Main game loop — owns the pygame event/render cycle."""
         self.running = True
-        while self.running:
-            dt: float = self.clock.tick(60) / 1000.0
+        try:
+            while self.running:
+                dt: float = self.clock.tick(60) / 1000.0
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                else:
-                    self.handle_input(event)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    else:
+                        self.handle_input(event)
 
-            self._update(dt)
-            self._render()
-
-        pygame.quit()
+                self._update(dt)
+                self._render()
+        finally:
+            pygame.quit()
 
     def _render_menu(self) -> None:
+        """Function representing _render_menu."""
         self.screen.fill((7, 18, 24))
         panel = pygame.Rect(
             32, 32, self.screen.get_width() - 64, self.screen.get_height() - 64
@@ -88,7 +90,9 @@ class Game:
         subtitle = self.menu_font.render(
             "A MAZE OF YOUR OWN MAKING", True, (203, 179, 255)
         )
-        self.screen.blit(subtitle, subtitle.get_rect(center=(panel.centerx, 164)))
+        self.screen.blit(
+            subtitle, subtitle.get_rect(center=(panel.centerx, 164))
+        )
         pygame.draw.line(
             self.screen,
             (154, 118, 255),
@@ -123,7 +127,9 @@ class Game:
                     2,
                 )
                 text = self.menu_font.render(
-                    label, True, (255, 241, 192) if selected else (200, 224, 216)
+                    label,
+                    True,
+                    (255, 241, 192) if selected else (200, 224, 216),
                 )
                 self.screen.blit(text, text.get_rect(center=rect.center))
                 self.menu_button_rects.append(rect)
@@ -139,8 +145,12 @@ class Game:
             return
 
         if self.menu_page == "scores":
-            heading = self.title_font.render("HIGH SCORES", True, (255, 211, 52))
-            self.screen.blit(heading, heading.get_rect(center=(panel.centerx, 242)))
+            heading = self.title_font.render(
+                "HIGH SCORES", True, (255, 211, 52)
+            )
+            self.screen.blit(
+                heading, heading.get_rect(center=(panel.centerx, 242))
+            )
             scores = self.score_storage.show_top()
             if not scores:
                 scores = [("No scores yet", 0)]
@@ -153,7 +163,9 @@ class Game:
                 self.screen.blit(text, (panel.centerx - 160, 284 + index * 34))
         else:
             heading = self.title_font.render("CONTROLS", True, (255, 211, 52))
-            self.screen.blit(heading, heading.get_rect(center=(panel.centerx, 242)))
+            self.screen.blit(
+                heading, heading.get_rect(center=(panel.centerx, 242))
+            )
             controls = (
                 "Move: Arrow keys or W A S D",
                 "Pause / resume: P",
@@ -168,13 +180,16 @@ class Game:
                     text.get_rect(center=(panel.centerx, 302 + index * 38)),
                 )
 
-        back_hint = self.status_font.render("ESC TO RETURN", True, (191, 169, 255))
+        back_hint = self.status_font.render(
+            "ESC TO RETURN", True, (191, 169, 255)
+        )
         self.screen.blit(
             back_hint,
             back_hint.get_rect(center=(panel.centerx, panel.bottom - 44)),
         )
 
     def _activate_menu_selection(self) -> None:
+        """Function representing _activate_menu_selection."""
         if self.menu_page != "main":
             return
         if self.menu_selection == 0:
@@ -187,12 +202,14 @@ class Game:
             self.running = False
 
     def _return_to_menu(self) -> None:
+        """Function representing _return_to_menu."""
         self.state = GameState.MENU
         self.menu_page = "main"
         self.menu_selection = 0
         self.screen = pygame.display.set_mode((800, 800))
 
     def _handle_menu_input(self, event: pygame.event.Event) -> None:
+        """Function representing _handle_menu_input."""
         if self.menu_page != "main":
             if event.key in (pygame.K_ESCAPE, pygame.K_BACKSPACE):
                 self.menu_page = "main"
@@ -269,7 +286,12 @@ class Game:
             pygame.draw.rect(
                 self.screen,
                 (7, 18, 24),
-                (0, hud_y, self.screen.get_width(), self.screen.get_height() - hud_y),
+                (
+                    0,
+                    hud_y,
+                    self.screen.get_width(),
+                    self.screen.get_height() - hud_y,
+                ),
             )
             pygame.draw.line(
                 self.screen,
@@ -300,7 +322,11 @@ class Game:
             cheats_txt = self.status_font.render(
                 f"Cheats: {'ON' if self.cheat_mode.enabled else 'OFF'} (C)",
                 True,
-                (134, 245, 207) if self.cheat_mode.enabled else (134, 174, 169),
+                (
+                    (134, 245, 207)
+                    if self.cheat_mode.enabled
+                    else (134, 174, 169)
+                ),
             )
 
             self.screen.blit(score_txt, (hud_left, hud_y + 5))
@@ -328,7 +354,10 @@ class Game:
             self.screen.blit(
                 text,
                 text.get_rect(
-                    center=(self.screen.get_width() // 2, self.screen.get_height() // 2)
+                    center=(
+                        self.screen.get_width() // 2,
+                        self.screen.get_height() // 2,
+                    )
                 ),
             )
 
@@ -379,6 +408,7 @@ class Game:
         self.state = GameState.ENTERING_NAME
 
     def handle_input(self, event: pygame.event.Event) -> None:
+        """Function representing handle_input."""
         if self.state == GameState.MENU and event.type == pygame.MOUSEMOTION:
             if self.menu_page == "main":
                 for index, rect in enumerate(self.menu_button_rects):
@@ -387,7 +417,10 @@ class Game:
                         break
             return
 
-        if self.state == GameState.MENU and event.type == pygame.MOUSEBUTTONDOWN:
+        if (
+            self.state == GameState.MENU
+            and event.type == pygame.MOUSEBUTTONDOWN
+        ):
             if self.menu_page == "main" and event.button == 1:
                 for index, rect in enumerate(self.menu_button_rects):
                     if rect.collidepoint(event.pos):
@@ -463,6 +496,7 @@ class Game:
 
     def _build_level(self, level_index: int) -> Level:
         # ... (Keep the beginning of the method exactly the same) ...
+        """Function representing _build_level."""
         level_data = self.config.levels_hight_width[level_index]
         width = level_data["width"]
         height = level_data["height"]
@@ -530,7 +564,8 @@ class Game:
         return pacgums
 
     def _resize_screen_for_level(self) -> None:
-        """Resizes the pygame window to perfectly fit the current maze and HUD."""
+        """Resizes the pygame window to perfectly fit the current maze and
+        HUD."""
         if self.current_level is None:
             return
 

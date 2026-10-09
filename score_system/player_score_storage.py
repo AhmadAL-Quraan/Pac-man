@@ -3,8 +3,10 @@ from dataclasses import dataclass
 
 @dataclass
 class PlayerScoreStorage:
+    """Class representing PlayerScoreStorage."""
 
     def load(self, filepath: str) -> list[tuple[str, int]]:
+        """Function representing load."""
         score: list[tuple[str, int]] = []
         try:
             with open(filepath, "r") as f:
@@ -30,6 +32,7 @@ class PlayerScoreStorage:
         return score
 
     def save(self, scores: list[tuple[str, int]], filepath: str) -> None:
+        """Function representing save."""
         with open(filepath, "w") as f:
             for name, score in scores:
                 f.write(f"{name}:{score}\n")

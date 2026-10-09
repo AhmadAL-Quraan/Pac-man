@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from mazegenerator import MazeGenerator
 from pacman.direction import Direction
-from pacman import direction
 
 
 @dataclass
 class Maze:
+    """Class representing Maze."""
+
     width: int
     height: int
     seed: int
@@ -50,6 +51,7 @@ class Maze:
     def can_move(
         self, position: tuple[int, int], direction: Direction
     ) -> bool:
+        """Function representing can_move."""
         if (
             position[0] < 0
             or position[1] < 0
@@ -59,13 +61,14 @@ class Maze:
             print(f"Warning, the position is out of index {position}")
             return False
 
-        if self.has_wall(position, direction) == True:
+        if self.has_wall(position, direction):
             return False
         return True
 
     def get_neighbors(
         self, position: tuple[int, int]
     ) -> list[tuple[int, int]]:
+        """Function representing get_neighbors."""
         neighbors: list[tuple[int, int]] = []
         directions: list[Direction] = [
             Direction.UP,

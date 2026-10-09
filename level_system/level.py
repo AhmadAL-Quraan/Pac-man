@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 import pygame
-import config
 from pacman.pacman import Pacman
 from .maze import Maze
 from .ghost import Ghost
@@ -13,6 +12,8 @@ from pacman.direction import Direction
 
 @dataclass
 class Level:
+    """Class representing Level."""
+
     maze: Maze
     ghosts: list[Ghost]
     pacgums: dict[tuple[int, int], Pacgum]
@@ -34,6 +35,7 @@ class Level:
             end: tuple[int, int],
             is_special: bool = False,
         ) -> None:
+            """Function representing draw_wall."""
             if is_special:
                 outer = (79, 52, 121)
                 middle = (160, 110, 255)
@@ -148,13 +150,10 @@ class Level:
             i.respawn()
 
     def check_collision(self, player: Pacman, cheat_mode: CheatMode) -> None:
-
+        """Function representing check_collision."""
         for i in self.ghosts:
             if i.position == player.position:
-                if (
-                    i.state == GhostState.CHASING
-                    and cheat_mode.invincible == False
-                ):
+                if i.state == GhostState.CHASING and not cheat_mode.invincible:
                     self._reset_position(player)
                     player.lost_life()
                     break
@@ -162,19 +161,19 @@ class Level:
                     i.get_eaten()
 
     def check_eaten_pacgums(self, player: Pacman) -> None:
-        """Check if the eaten pacgums are normal ones or super, and make actions"""
+        """Check if eaten pacgum is normal or super, and make actions."""
 
         pacgum_position = self.pacgums.get(
             player.position, Pacgum((-1, -1), False, False)
         )
         if pacgum_position.position == (-1, -1):
             return
-        if pacgum_position.is_super == False:
+        if not pacgum_position.is_super:
             if not pacgum_position.eaten:
                 pacgum_position.eaten = True
                 player.add_points(self.config.points_per_pacgum)
 
-        if pacgum_position.is_super == True:
+        if pacgum_position.is_super:
             if not pacgum_position.eaten:
                 pacgum_position.eaten = True
                 player.add_points(self.config.points_per_super_pacgum)
@@ -187,7 +186,7 @@ class Level:
         return all(pacgum.eaten for pacgum in self.pacgums.values())
 
     def check_failed(self, player: Pacman) -> bool:
-        """Check if the level has failed, either the pacman life ends or the time has end
+        """Check if level failed (e.g., lives depleted or time ran out).
 
         Args:
             player: The pacman instance
