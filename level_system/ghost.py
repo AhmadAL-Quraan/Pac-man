@@ -28,10 +28,12 @@ class Ghost:
     EDIBLE_DURATION_SECONDS: float = 5.0
     EATEN_DURATION_SECONDS: float = 5.0
 
+    #
     def _flee_step(
         self, maze: Maze, player_position: tuple[int, int]
     ) -> tuple[int, int]:
-        """Determines the next step to flee away from the player."""
+        """Determines the next step to flee away from the player.
+        Simulate the state of the ghost on each neighbor cell"""
         neighbors = maze.get_neighbors(self.position)
 
         if not neighbors:
@@ -43,7 +45,7 @@ class Ghost:
         for neighbor in neighbors:
             # We don't care about the 'next step' *from* the neighbor,
             # we only care about how far that neighbor is from the player.
-            _, distance = self._analyze_path(maze, neighbor, player_position)
+            _, distance = self._bfs(maze, neighbor, player_position)
 
             if distance > max_distance:
                 max_distance = distance
@@ -51,7 +53,7 @@ class Ghost:
 
         return best_step
 
-    def _analyze_path(
+    def _bfs(
         self, maze: Maze, start: tuple[int, int], goal: tuple[int, int]
     ) -> tuple[tuple[int, int], int]:
         """Finds both the next tile to move to and total distance to goal.
@@ -82,6 +84,8 @@ class Ghost:
         distance = 0
         step = goal
 
+        # Child: parent
+        # step-child : came_from[step] - parent
         while came_from[step] != start:
             step = came_from[step]
             distance += 1
@@ -132,9 +136,7 @@ class Ghost:
         if self.state == GhostState.CHASING:
             # We only need the coordinate step here, so we discard the
             # distance with _
-            self.position, _ = self._analyze_path(
-                maze, self.position, player_position
-            )
+            self.position, _ = self._bfs(maze, self.position, player_position)
 
         elif self.state == GhostState.EDIBLE:
             self.position = self._flee_step(maze, player_position)

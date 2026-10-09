@@ -5,17 +5,23 @@ from game_system.game import Game
 
 def main() -> None:
     """Entry point: load config and start the game."""
+    config_path: str = ""
+    print()
     if len(sys.argv) != 2:
-        print("Usage: python3 pac-man.py <config.json>")
-        sys.exit(1)
+        print(
+            f"Program only takes 1 arguments which is the configuration file"
+        )
+        sys.exit(-1)
+
+    config_path = sys.argv[1]
 
     try:
-        config = Config.load(sys.argv[1])
+        config = Config.load(config_path)
     except ValueError as e:
         print(f"Error: {e}")
         sys.exit(1)
 
-    print(f"Loaded config from {sys.argv[1]}")
+    print(f"Loaded config from {config_path}")
 
     try:
         game = Game(config)
