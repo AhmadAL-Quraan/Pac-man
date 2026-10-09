@@ -30,6 +30,6 @@ clean:
 	python -c "import shutil, pathlib; [shutil.rmtree(p, ignore_errors=True) for p in pathlib.Path('.').rglob('__pycache__')]; shutil.rmtree('.mypy_cache', ignore_errors=True); shutil.rmtree('.pytest_cache', ignore_errors=True)"
 
 lint:
-	@python -m flake8 .
+	@python -m flake8 --exclude=.venv .
 	@python -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 

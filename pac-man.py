@@ -8,9 +8,7 @@ def main() -> None:
     config_path: str = ""
     print()
     if len(sys.argv) != 2:
-        print(
-            f"Program only takes 1 arguments which is the configuration file"
-        )
+        print("Program only takes 1 arguments which is the configuration file")
         sys.exit(-1)
 
     config_path = sys.argv[1]
