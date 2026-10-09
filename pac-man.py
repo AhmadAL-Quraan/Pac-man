@@ -26,4 +26,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nGame interrupted by user. Exiting gracefully...")
+        sys.exit(0)
+    except Exception as e:
+        print(f"\nAn unexpected fatal error occurred: {e}")
+        sys.exit(1)

@@ -4,11 +4,12 @@ from pacman.pacman import Pacman
 from .ghost_state import GhostState
 from .maze import Maze
 from collections import deque
-from .pacgum import Pacgum
 
 
 @dataclass
 class Ghost:
+    """Class representing Ghost."""
+
     position: tuple[int, int]
     state: GhostState
     # How much time before the ghost stop being ediable
@@ -16,9 +17,10 @@ class Ghost:
     state_timer: float
     corner: tuple[int, int]
     """
-      The running total of accumulated `dt's`, checked against `_move_interval`,
-      each frame to decide whether enough time has passed for
-      the ghost to take its next step. So basically move player a step every x seconds
+      The running total of accumulated `dt's`, checked against
+      `_move_interval`, each frame to decide whether enough time has passed
+      for the ghost to take its next step. So basically move player a step
+      every x seconds.
     """
     # Every value here is in seconds
     move_timer: float = 0
@@ -52,7 +54,7 @@ class Ghost:
     def _analyze_path(
         self, maze: Maze, start: tuple[int, int], goal: tuple[int, int]
     ) -> tuple[tuple[int, int], int]:
-        """Finds both the next tile to move to and the total distance to the goal.
+        """Finds both the next tile to move to and total distance to goal.
 
         Returns:
             A tuple of (next_step_coordinate, total_distance_in_steps)
@@ -103,7 +105,8 @@ class Ghost:
 
         Args:
             dt: How much real time (in seconds) passed since the last frame.
-            player_position: Countdown to how much time a ghost stays in its current state (like "edible")
+            player_position: Countdown to how much time a ghost stays in its
+                current state (like "edible").
             frozen: A cheat_mode option that freezes ghosts
         """
 
@@ -114,7 +117,7 @@ class Ghost:
             if self.state_timer <= 0:
                 if self.state == GhostState.EATEN:
                     self.respawn()  # Sets position = corner, state = CHASING
-                    return  # Freshly respawned ghost shouldn't move on the revive frame
+                    return  # Fresh respawn ghost shouldn't move on revive
                 elif self.state == GhostState.EDIBLE:
                     self.state = GhostState.CHASING
                     player.change_pacman_speed(0.2)
@@ -127,7 +130,8 @@ class Ghost:
 
         # Execute movement based on state
         if self.state == GhostState.CHASING:
-            # We only need the coordinate step here, so we discard the distance with _
+            # We only need the coordinate step here, so we discard the
+            # distance with _
             self.position, _ = self._analyze_path(
                 maze, self.position, player_position
             )

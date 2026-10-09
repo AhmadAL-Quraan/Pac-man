@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class CheatMode:
+    """Class representing CheatMode."""
+
     enabled: bool = False
     invincible: bool = False
     ghosts_frozen: bool = False
