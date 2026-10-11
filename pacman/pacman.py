@@ -1,6 +1,6 @@
 from __future__ import annotations
 from math import atan2, cos, sin
-from typing import Tuple, TYPE_CHECKING
+from typing import ClassVar, Tuple, TYPE_CHECKING
 from .direction import Direction
 import pygame
 from config import Config
@@ -25,11 +25,16 @@ class Pacman:
         _move_interval (float): Seconds required to cross one grid cell.
     """
 
+    DEFAULT_MOVE_INTERVAL: ClassVar[float] = 0.13
+    SUPER_PACGUM_MOVE_INTERVAL: ClassVar[float] = 0.10
+    SUPER_PACGUM_DURATION_SECONDS: ClassVar[float] = 5.0
+    INSTANT_TURN_WINDOW_SECONDS: ClassVar[float] = 0.015
+
     def __init__(
         self,
         start_position: Tuple[int, int],
         initial_direction: Direction = Direction.RIGHT,
-        move_interval: float = 0.2,
+        move_interval: float = DEFAULT_MOVE_INTERVAL,
     ) -> None:
         """Initializes the Pacman instance.
 
@@ -47,7 +52,13 @@ class Pacman:
         self._next_direction: Direction = initial_direction
 
         self._move_timer: float = 0.0
+        self._normal_move_interval: float = move_interval
         self._move_interval: float = move_interval
+        self._speed_boost_timer: float = 0.0
+        self._render_position: tuple[float, float] = tuple(
+            float(coordinate) for coordinate in start_position
+        )
+        self._render_direction: Direction = initial_direction
 
     def respawn(self) -> None:
         """Resets Pacman's position, direction, and movement timer."""
@@ -55,6 +66,12 @@ class Pacman:
         self._direction = Direction.RIGHT
         self._next_direction = Direction.RIGHT
         self._move_timer = 0.0
+        self._move_interval = self._normal_move_interval
+        self._speed_boost_timer = 0.0
+        self._render_position = tuple(
+            float(coordinate) for coordinate in self._position
+        )
+        self._render_direction = Direction.RIGHT
 
     def update(self, dt: float, speed_multiplier: float, maze: Maze) -> None:
         """Advances Pacman by dt seconds, moving one grid cell once enough
@@ -65,32 +82,61 @@ class Pacman:
             speed_multiplier: The multiplier applied to Pacman movement speed.
             maze: Used to check whether a move is legal (no wall in the way).
         """
+        if self._speed_boost_timer > 0.0:
+            self._speed_boost_timer = max(0.0, self._speed_boost_timer - dt)
+            if self._speed_boost_timer == 0.0:
+                self._move_interval = self._normal_move_interval
+
         self._move_timer += dt * speed_multiplier
 
-        if self._move_timer < self._move_interval:
-            return
+        while self._move_timer >= self._move_interval:
+            self._move_timer -= self._move_interval
 
-        self._move_timer -= self._move_interval
+            if maze.can_move(self._position, self._direction):
+                dx, dy = self._direction.value
+                row, col = self._position
+                self._position = (row + dx, col + dy)
 
-        if maze.can_move(self._position, self._next_direction):
-            self._direction = self._next_direction
+            if maze.can_move(self._position, self._next_direction):
+                self._direction = self._next_direction
 
+        self._render_direction = self._direction
         if maze.can_move(self._position, self._direction):
-            dx, dy = self._direction.value
-            x, y = self._position
-            self._position = (x + dx, y + dy)
+            row, col = self._position
+            row_delta, col_delta = self._direction.value
+            progress = min(self._move_timer / self._move_interval, 1.0)
+            self._render_position = (
+                row + row_delta * progress,
+                col + col_delta * progress,
+            )
+        else:
+            self._render_position = tuple(
+                float(coordinate) for coordinate in self._position
+            )
 
     def change_pacman_speed(self, speed: float) -> None:
         """Change pacman speed when ghosts became edible"""
         self._move_interval = speed
 
+    def activate_super_pacgum_speed(self) -> None:
+        """Apply and refresh the temporary super-pacgum speed boost."""
+        self._move_interval = self.SUPER_PACGUM_MOVE_INTERVAL
+        self._speed_boost_timer = self.SUPER_PACGUM_DURATION_SECONDS
+
     def set_direction(self, direction: Direction) -> None:
-        """Queues the direction Pacman should turn toward next.
+        """Apply turns at a tile center and queue turns while between tiles.
 
         Args:
             direction: The new direction requested by the player.
         """
         self._next_direction = direction
+        if (
+            direction != self._direction
+            and self._move_timer <= self.INSTANT_TURN_WINDOW_SECONDS
+        ):
+            self._direction = direction
+            self._render_direction = direction
+            self._move_timer = 0.0
 
     def lost_life(self) -> None:
         """Decrements the number of remaining lives by one, floor at 0."""
@@ -112,11 +158,11 @@ class Pacman:
     def draw(self, screen: pygame.Surface) -> None:
         """Draw Pac-Man as a faceted, directional comet character."""
         cell_size = Config.CELL_SIZE
-        row, col = self._position
+        row, col = self._render_position
 
-        center_x = col * cell_size + cell_size // 2
-        center_y = row * cell_size + cell_size // 2
-        row_delta, col_delta = self._direction.value
+        center_x = round(col * cell_size + cell_size // 2)
+        center_y = round(row * cell_size + cell_size // 2)
+        row_delta, col_delta = self._render_direction.value
         facing = atan2(row_delta, col_delta)
         cos_facing = cos(facing)
         sin_facing = sin(facing)
