@@ -90,7 +90,7 @@ Main algorithms used for ghosts:
 
 
 
-# Work hasn't finish 
+# Pending fixes
 
 - [x] Screen size issue: It's a fixed 800x800 screen, and at most 21x21 maze can run by this game. Must fix it. Fixed: Now it's based on level size instead and whether the user screen could handle it, if not a warning will appear.
 
