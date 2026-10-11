@@ -5,7 +5,7 @@
 * At the start of the game you will have 4 ghosts that will be at the corners and pacman at the middle.
 * You must eat all the pacgums to go to the next level, and try to achieve maximum score possible.
 
-
+The game is playable on [itch.io](https://boomers13.itch.io/crazy-pacman)
 ## Game view
 
 ![](./pic/game_inside3x3.png)
