@@ -104,10 +104,26 @@ class Level:
             (255, 157, 84),
             (181, 135, 245),
         )
+        ghost_position_counts: dict[tuple[int, int], int] = {}
+        for ghost in self.ghosts:
+            ghost_position_counts[ghost.position] = (
+                ghost_position_counts.get(ghost.position, 0) + 1
+            )
+        ghost_position_indices: dict[tuple[int, int], int] = {}
+        overlap_offsets = ((-5, -5), (5, -5), (-5, 5), (5, 5))
+
         for ghost_index, ghost in enumerate(self.ghosts):
-            row, col = ghost.position
-            center_x = col * cell_size + cell_size // 2
-            top = row * cell_size + 3
+            row, col = ghost.render_position
+            center_x = round(col * cell_size + cell_size // 2)
+            top = round(row * cell_size + 3)
+            if ghost_position_counts[ghost.position] > 1:
+                overlap_index = ghost_position_indices.get(ghost.position, 0)
+                offset_x, offset_y = overlap_offsets[
+                    overlap_index % len(overlap_offsets)
+                ]
+                ghost_position_indices[ghost.position] = overlap_index + 1
+                center_x += offset_x
+                top += offset_y
             eye_y = top + 12
 
             if ghost.state == GhostState.EATEN:
@@ -151,6 +167,7 @@ class Level:
 
     def check_collision(self, player: Pacman, cheat_mode: CheatMode) -> None:
         """Function representing check_collision."""
+
         for i in self.ghosts:
             if i.position == player.position:
                 if i.state == GhostState.CHASING and not cheat_mode.invincible:
@@ -179,7 +196,7 @@ class Level:
                 player.add_points(self.config.points_per_super_pacgum)
                 for i in self.ghosts:
                     i.become_edible()
-                player.change_pacman_speed(0.140)
+                player.activate_super_pacgum_speed()
 
     def is_complete(self) -> bool:
         """Return whether every pacgum in the level has been eaten."""

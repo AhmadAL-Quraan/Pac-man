@@ -259,19 +259,45 @@ class Game:
             # Safely get the score to satisfy Pyright
             final_score = self.player.score if self.player is not None else 0
 
+            screen_width = self.screen.get_width()
+            screen_height = self.screen.get_height()
+            center_x = screen_width // 2
+            center_y = screen_height // 2
+
             title = self.title_font.render(msg, True, color)
             score_text = self.title_font.render(
                 f"Final Score: {final_score}", True, (255, 255, 255)
             )
-            prompt = self.title_font.render(
-                f"Enter Name (Press Enter): {self.player_name_input}_",
-                True,
-                (255, 255, 0),
+            prompt = self.menu_font.render(
+                "Enter your name", True, (255, 255, 0)
+            )
+            name_text = self.menu_font.render(
+                f"{self.player_name_input}_", True, (255, 255, 255)
+            )
+            continue_text = self.status_font.render(
+                "Press Enter to continue", True, (180, 200, 195)
             )
 
-            self.screen.blit(title, (50, 50))
-            self.screen.blit(score_text, (50, 120))
-            self.screen.blit(prompt, (50, 190))
+            self.screen.blit(
+                title, title.get_rect(center=(center_x, center_y - 120))
+            )
+            self.screen.blit(
+                score_text,
+                score_text.get_rect(center=(center_x, center_y - 55)),
+            )
+            self.screen.blit(
+                prompt, prompt.get_rect(center=(center_x, center_y + 10))
+            )
+
+            name_box = pygame.Rect(center_x - 175, center_y + 38, 350, 54)
+            pygame.draw.rect(self.screen, (36, 112, 112), name_box, 2)
+            self.screen.blit(
+                name_text, name_text.get_rect(center=name_box.center)
+            )
+            self.screen.blit(
+                continue_text,
+                continue_text.get_rect(center=(center_x, center_y + 125)),
+            )
 
         elif (
             self.state == GameState.PLAYING and self.current_level is not None
@@ -405,6 +431,9 @@ class Game:
         """End the current game and move to the name entry state."""
         self.won_last_game = won
         self.player_name_input = ""
+        self.screen = pygame.display.set_mode(
+            (Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
+        )
         self.state = GameState.ENTERING_NAME
 
     def handle_input(self, event: pygame.event.Event) -> None:

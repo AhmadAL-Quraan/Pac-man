@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pacman.pacman import Pacman
 from .ghost_state import GhostState
@@ -27,6 +27,18 @@ class Ghost:
     _move_interval: float = 0.6
     EDIBLE_DURATION_SECONDS: float = 5.0
     EATEN_DURATION_SECONDS: float = 5.0
+    _render_position: tuple[float, float] = field(init=False, repr=False)
+    _planned_key: tuple[tuple[int, int], GhostState] | None = field(
+        default=None, init=False, repr=False
+    )
+    _planned_step: tuple[int, int] | None = field(
+        default=None, init=False, repr=False
+    )
+
+    def __post_init__(self) -> None:
+        self._render_position = tuple(
+            float(coordinate) for coordinate in self.position
+        )
 
     #
     def _flee_step(
@@ -97,6 +109,23 @@ class Ghost:
             distance,
         )
 
+    def _next_step(
+        self, maze: Maze, player_position: tuple[int, int]
+    ) -> tuple[int, int]:
+        key = (self.position, self.state)
+        if key != self._planned_key:
+            if self.state == GhostState.CHASING:
+                self._planned_step, _ = self._bfs(
+                    maze, self.position, player_position
+                )
+            elif self.state == GhostState.EDIBLE:
+                self._planned_step = self._flee_step(maze, player_position)
+            else:
+                self._planned_step = self.position
+            self._planned_key = key
+
+        return self._planned_step or self.position
+
     def update(
         self,
         dt: float,
@@ -124,35 +153,51 @@ class Ghost:
                     return  # Fresh respawn ghost shouldn't move on revive
                 elif self.state == GhostState.EDIBLE:
                     self.state = GhostState.CHASING
-                    player.change_pacman_speed(0.2)
 
         self.move_timer += dt
-        if self.move_timer < self._move_interval:
-            return
+        while self.move_timer >= self._move_interval:
+            self.move_timer -= self._move_interval
+            self.position = self._next_step(maze, player_position)
+            self._planned_key = None
 
-        self.move_timer -= self._move_interval
-
-        # Execute movement based on state
-        if self.state == GhostState.CHASING:
-            # We only need the coordinate step here, so we discard the
-            # distance with _
-            self.position, _ = self._bfs(maze, self.position, player_position)
-
-        elif self.state == GhostState.EDIBLE:
-            self.position = self._flee_step(maze, player_position)
+        if self.state in (GhostState.CHASING, GhostState.EDIBLE):
+            target_row, target_col = self._next_step(maze, player_position)
+            row, col = self.position
+            progress = min(self.move_timer / self._move_interval, 1.0)
+            self._render_position = (
+                row + (target_row - row) * progress,
+                col + (target_col - col) * progress,
+            )
+        else:
+            self._render_position = tuple(
+                float(coordinate) for coordinate in self.position
+            )
 
     def become_edible(self) -> None:
         """Switch the state of the ghost to edible and start counting down"""
         self.state = GhostState.EDIBLE
         self.state_timer = self.EDIBLE_DURATION_SECONDS
+        self._planned_key = None
 
     def respawn(self) -> None:
         """respawn the ghost"""
         self.position = self.corner
         self.state = GhostState.CHASING
         self.state_timer = 0.0
+        self._render_position = tuple(
+            float(coordinate) for coordinate in self.position
+        )
+        self._planned_key = None
 
     def get_eaten(self) -> None:
         """Switch to eaten state and start Countdown for respawn"""
         self.state = GhostState.EATEN
         self.state_timer = self.EATEN_DURATION_SECONDS
+        self._render_position = tuple(
+            float(coordinate) for coordinate in self.position
+        )
+        self._planned_key = None
+
+    @property
+    def render_position(self) -> tuple[float, float]:
+        return self._render_position
