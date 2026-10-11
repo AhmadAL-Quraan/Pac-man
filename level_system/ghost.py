@@ -36,8 +36,9 @@ class Ghost:
     )
 
     def __post_init__(self) -> None:
-        self._render_position = tuple(
-            float(coordinate) for coordinate in self.position
+        self._render_position = (
+            float(self.position[0]),
+            float(self.position[1]),
         )
 
     #
@@ -169,8 +170,9 @@ class Ghost:
                 col + (target_col - col) * progress,
             )
         else:
-            self._render_position = tuple(
-                float(coordinate) for coordinate in self.position
+            self._render_position = (
+                float(self.position[0]),
+                float(self.position[1]),
             )
 
     def become_edible(self) -> None:
@@ -184,8 +186,9 @@ class Ghost:
         self.position = self.corner
         self.state = GhostState.CHASING
         self.state_timer = 0.0
-        self._render_position = tuple(
-            float(coordinate) for coordinate in self.position
+        self._render_position = (
+            float(self.position[0]),
+            float(self.position[1]),
         )
         self._planned_key = None
 
@@ -193,8 +196,9 @@ class Ghost:
         """Switch to eaten state and start Countdown for respawn"""
         self.state = GhostState.EATEN
         self.state_timer = self.EATEN_DURATION_SECONDS
-        self._render_position = tuple(
-            float(coordinate) for coordinate in self.position
+        self._render_position = (
+            float(self.position[0]),
+            float(self.position[1]),
         )
         self._planned_key = None
 

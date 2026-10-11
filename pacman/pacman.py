@@ -55,8 +55,9 @@ class Pacman:
         self._normal_move_interval: float = move_interval
         self._move_interval: float = move_interval
         self._speed_boost_timer: float = 0.0
-        self._render_position: tuple[float, float] = tuple(
-            float(coordinate) for coordinate in start_position
+        self._render_position: tuple[float, float] = (
+            float(start_position[0]),
+            float(start_position[1]),
         )
         self._render_direction: Direction = initial_direction
 
@@ -68,8 +69,9 @@ class Pacman:
         self._move_timer = 0.0
         self._move_interval = self._normal_move_interval
         self._speed_boost_timer = 0.0
-        self._render_position = tuple(
-            float(coordinate) for coordinate in self._position
+        self._render_position = (
+            float(self._position[0]),
+            float(self._position[1]),
         )
         self._render_direction = Direction.RIGHT
 
@@ -110,8 +112,9 @@ class Pacman:
                 col + col_delta * progress,
             )
         else:
-            self._render_position = tuple(
-                float(coordinate) for coordinate in self._position
+            self._render_position = (
+                float(self._position[0]),
+                float(self._position[1]),
             )
 
     def change_pacman_speed(self, speed: float) -> None:

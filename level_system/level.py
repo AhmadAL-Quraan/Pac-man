@@ -113,9 +113,9 @@ class Level:
         overlap_offsets = ((-5, -5), (5, -5), (-5, 5), (5, 5))
 
         for ghost_index, ghost in enumerate(self.ghosts):
-            row, col = ghost.render_position
-            center_x = round(col * cell_size + cell_size // 2)
-            top = round(row * cell_size + 3)
+            render_row, render_col = ghost.render_position
+            center_x = round(render_col * cell_size + cell_size // 2)
+            top = round(render_row * cell_size + 3)
             if ghost_position_counts[ghost.position] > 1:
                 overlap_index = ghost_position_indices.get(ghost.position, 0)
                 offset_x, offset_y = overlap_offsets[
