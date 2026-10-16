@@ -24,7 +24,7 @@ class Ghost:
     """
     # Every value here is in seconds
     move_timer: float = 0
-    _move_interval: float = 0.6
+    _move_interval: float = 0.4
     EDIBLE_DURATION_SECONDS: float = 5.0
     EATEN_DURATION_SECONDS: float = 5.0
     _render_position: tuple[float, float] = field(init=False, repr=False)

@@ -246,7 +246,9 @@ class Game:
 
         elif self.state == GameState.ENTERING_NAME:
             msg = (
-                "VICTORY!"
+                
+                
+                "VICTORY!, All maze completed perfectly !!"
                 if getattr(self, "won_last_game", False)
                 else "GAME OVER!"
             )
@@ -386,6 +388,8 @@ class Game:
                     )
                 ),
             )
+            self.end_game(won=True)
+
 
         pygame.display.flip()
 
