@@ -52,6 +52,9 @@ class Game:
         self.menu_page = "main"
         self.menu_selection = 0
         self.menu_button_rects: list[pygame.Rect] = []
+        self.pause_selection = 0
+        self.pause_button_rects: list[pygame.Rect] = []
+        self._paused_window_size: tuple[int, int] | None = None
         self.running = False
 
         # Tracking variables for the Game Over / Name Entry screen
@@ -204,6 +207,9 @@ class Game:
     def _return_to_menu(self) -> None:
         """Function representing _return_to_menu."""
         self.state = GameState.MENU
+        self.player = None
+        self.current_level = None
+        self._paused_window_size = None
         self.menu_page = "main"
         self.menu_selection = 0
         self.screen = pygame.display.set_mode((800, 800))
@@ -246,7 +252,9 @@ class Game:
 
         elif self.state == GameState.ENTERING_NAME:
             msg = (
-                "VICTORY!"
+                
+                
+                "VICTORY!, All maze completed perfectly !!"
                 if getattr(self, "won_last_game", False)
                 else "GAME OVER!"
             )
@@ -362,16 +370,7 @@ class Game:
             self.screen.blit(cheats_txt, (hud_left, hud_y + 49))
 
         elif self.state == GameState.PAUSED:
-            text = self.title_font.render(
-                "PAUSED - Press P to Resume", True, (255, 255, 255)
-            )
-            text_rect = text.get_rect(
-                center=(
-                    self.screen.get_width() // 2,
-                    self.screen.get_height() // 2,
-                )
-            )
-            self.screen.blit(text, text_rect)
+            self._render_pause_menu()
 
         elif self.state == GameState.VICTORY:
             text = self.title_font.render(
@@ -386,6 +385,8 @@ class Game:
                     )
                 ),
             )
+            self.end_game(won=True)
+
 
         pygame.display.flip()
 
@@ -420,12 +421,91 @@ class Game:
     def pause(self) -> None:
         """Pause the game if currently playing."""
         if self.state == GameState.PLAYING:
+            self._paused_window_size = self.screen.get_size()
+            width = max(self._paused_window_size[0], 440)
+            height = max(self._paused_window_size[1], 320)
+            self.screen = pygame.display.set_mode((width, height))
+            self.pause_selection = 0
             self.state = GameState.PAUSED
 
     def resume(self) -> None:
         """Resume the game if currently paused."""
         if self.state == GameState.PAUSED:
+            if self._paused_window_size is not None:
+                self.screen = pygame.display.set_mode(self._paused_window_size)
+                self._paused_window_size = None
             self.state = GameState.PLAYING
+
+    def _render_pause_menu(self) -> None:
+        """Draw the pause options within the available window."""
+        width, height = self.screen.get_size()
+        center_x = width // 2
+        panel = pygame.Rect(16, 16, width - 32, height - 32)
+        pygame.draw.rect(self.screen, (10, 35, 42), panel)
+        pygame.draw.rect(self.screen, (154, 118, 255), panel, 2)
+
+        title = self.title_font.render("PAUSED", True, (255, 211, 52))
+        self.screen.blit(
+            title, title.get_rect(center=(center_x, height // 2 - 100))
+        )
+
+        labels = ("Resume the game", "Return to main menu")
+        button_width = min(400, panel.width - 32)
+        button_height = 52
+        self.pause_button_rects = []
+        for index, label in enumerate(labels):
+            rect = pygame.Rect(
+                center_x - button_width // 2,
+                height // 2 - 54 + index * 66,
+                button_width,
+                button_height,
+            )
+            selected = index == self.pause_selection
+            pygame.draw.rect(
+                self.screen,
+                (30, 103, 103) if selected else (13, 51, 58),
+                rect,
+            )
+            pygame.draw.rect(
+                self.screen,
+                (255, 211, 52) if selected else (143, 110, 255),
+                rect,
+                2,
+            )
+            text = self.menu_font.render(
+                label,
+                True,
+                (255, 241, 192) if selected else (200, 224, 216),
+            )
+            self.screen.blit(text, text.get_rect(center=rect.center))
+            self.pause_button_rects.append(rect)
+
+        hint = self.status_font.render(
+            "ARROWS SELECT   ENTER CHOOSE",
+            True,
+            (191, 169, 255),
+        )
+        self.screen.blit(
+            hint, hint.get_rect(center=(center_x, height // 2 + 100))
+        )
+
+    def _activate_pause_selection(self) -> None:
+        """Run the selected pause-menu action."""
+        if self.pause_selection == 0:
+            self.resume()
+        else:
+            self._return_to_menu()
+
+    def _handle_pause_input(self, event: pygame.event.Event) -> None:
+        """Handle keyboard navigation and activation in the pause menu."""
+        if event.key in (pygame.K_UP, pygame.K_w):
+            self.pause_selection = (self.pause_selection - 1) % 2
+        elif event.key in (pygame.K_DOWN, pygame.K_s):
+            self.pause_selection = (self.pause_selection + 1) % 2
+        elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+            self._activate_pause_selection()
+        elif event.key in (pygame.K_p, pygame.K_ESCAPE):
+            self.resume()
 
     def end_game(self, won: bool) -> None:
         """End the current game and move to the name entry state."""
@@ -446,6 +526,13 @@ class Game:
                         break
             return
 
+        if self.state == GameState.PAUSED and event.type == pygame.MOUSEMOTION:
+            for index, rect in enumerate(self.pause_button_rects):
+                if rect.collidepoint(event.pos):
+                    self.pause_selection = index
+                    break
+            return
+
         if (
             self.state == GameState.MENU
             and event.type == pygame.MOUSEBUTTONDOWN
@@ -456,6 +543,18 @@ class Game:
                         self.menu_selection = index
                         self._activate_menu_selection()
                         break
+            return
+
+        if (
+            self.state == GameState.PAUSED
+            and event.type == pygame.MOUSEBUTTONDOWN
+            and event.button == 1
+        ):
+            for index, rect in enumerate(self.pause_button_rects):
+                if rect.collidepoint(event.pos):
+                    self.pause_selection = index
+                    self._activate_pause_selection()
+                    break
             return
 
         if event.type != pygame.KEYDOWN:
@@ -519,8 +618,7 @@ class Game:
             return
 
         if self.state == GameState.PAUSED:
-            if event.key == pygame.K_p:
-                self.resume()
+            self._handle_pause_input(event)
             return
 
     def _build_level(self, level_index: int) -> Level:
