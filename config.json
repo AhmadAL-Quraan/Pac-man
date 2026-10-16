@@ -1,6 +1,6 @@
 {
   # File name to save the highscore values in for each player (json format)
-  "highscore_filename": "test.txt" ,
+  "highscore_filename": "highscore.txt",
 
 
   # Pacman number of lives 
